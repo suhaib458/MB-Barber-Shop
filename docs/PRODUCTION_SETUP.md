@@ -2,9 +2,31 @@
 
 This runbook covers the remaining external setup required before MB can go live with persistent bookings, Admin CMS, image uploads and push notifications.
 
+## Current checkpoint
+
+Already completed:
+
+- Firebase project created: `mb-barber-shop-718cb`
+- Firebase Web App created and browser configuration collected
+- GitHub feature branch prepared
+- Firestore rules and indexes prepared
+- Firebase Storage dependency removed
+- Cloudinary-ready authenticated image upload endpoint implemented
+- CI validates typecheck, lint, tests and production build
+
+Still requires account-console setup from the project owner:
+
+- enable Firebase Email/Password Authentication
+- create Cloud Firestore
+- generate the Firebase Web Push VAPID key
+- create Firebase Admin service-account credentials and store them directly in Netlify
+- create a Cloudinary account and store its server credentials directly in Netlify
+- create the first Firebase Admin user and `admins/{uid}` Firestore document
+- create the Netlify staging deployment and authorize its domain in Firebase
+
 ## 1. Firebase project
 
-The project is already created as:
+The project is:
 
 ```text
 mb-barber-shop-718cb
@@ -12,7 +34,7 @@ mb-barber-shop-718cb
 
 The repository is bound to that project through `.firebaserc`.
 
-The Firebase Web App has also already been created. Its browser configuration has been collected; keep those values in local/Netlify environment variables rather than committing an `.env.local` file.
+The Firebase Web App has already been created. Keep its values in local/Netlify environment variables rather than committing an `.env.local` file.
 
 In Firebase Console, complete these items:
 
