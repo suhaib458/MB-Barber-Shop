@@ -1,0 +1,98 @@
+name: MB Targeted Autofix
+
+on:
+  push:
+    branches: [feat/mb-client-ready]
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: ${{ !contains(github.event.head_commit.message, '[autofix]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/mb-client-ready
+          fetch-depth: 0
+
+      - name: Apply targeted fixes
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          for name in [
+              'components/home-page-v2.tsx',
+              'components/admin/content-panel.tsx',
+          ]:
+              path = Path(name)
+              text = path.read_text(encoding='utf-8')
+              text = text.replace('  Instagram,\n', '  Aperture as Instagram,\n', 1)
+              path.write_text(text, encoding='utf-8')
+
+          service_path = Path('components/admin/services-panel.tsx')
+          text = service_path.read_text(encoding='utf-8')
+          old = '''  async function seedDefaults() {
+            if (!db || items.length || !window.confirm("Add the six default MB services to Firebase?")) return;
+            const batch = writeBatch(db);
+            defaultServices.forEach((item) => {
+              const { id, ...payload } = item;
+              batch.set(doc(db, "services", id), payload);
+            });
+            await batch.commit();
+          }'''
+          new = '''  async function seedDefaults() {
+            const firestore = db;
+            if (!firestore || items.length || !window.confirm("Add the six default MB services to Firebase?")) return;
+            const batch = writeBatch(firestore);
+            defaultServices.forEach((item) => {
+              const { id, ...payload } = item;
+              batch.set(doc(firestore, "services", id), payload);
+            });
+            await batch.commit();
+          }'''
+          if old not in text:
+              raise SystemExit('Services seed block not found')
+          service_path.write_text(text.replace(old, new), encoding='utf-8')
+
+          barber_path = Path('components/admin/barbers-panel.tsx')
+          text = barber_path.read_text(encoding='utf-8')
+          old = '''  async function seedDefaults() {
+            if (!db || items.length || !window.confirm("Add the three placeholder MB barber records?")) return;
+            const batch = writeBatch(db);
+            defaultBarbers.forEach((item) => {
+              const { id, ...payload } = item;
+              batch.set(doc(db, "barbers", id), payload);
+            });
+            await batch.commit();
+          }'''
+          new = '''  async function seedDefaults() {
+            const firestore = db;
+            if (!firestore || items.length || !window.confirm("Add the three placeholder MB barber records?")) return;
+            const batch = writeBatch(firestore);
+            defaultBarbers.forEach((item) => {
+              const { id, ...payload } = item;
+              batch.set(doc(firestore, "barbers", id), payload);
+            });
+            await batch.commit();
+          }'''
+          if old not in text:
+              raise SystemExit('Barbers seed block not found')
+          barber_path.write_text(text.replace(old, new), encoding='utf-8')
+          PY
+
+      - name: Commit fixes
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo "No changes needed."
+            exit 0
+          fi
+          git config user.name "MB CI Autofix"
+          git config user.email "actions@users.noreply.github.com"
+          git add components/home-page-v2.tsx components/admin/content-panel.tsx components/admin/services-panel.tsx components/admin/barbers-panel.tsx
+          git commit -m "fix: resolve TypeScript diagnostics [autofix]"
+          git push origin HEAD:feat/mb-client-ready
