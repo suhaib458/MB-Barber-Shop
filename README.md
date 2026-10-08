@@ -60,7 +60,7 @@ firebase use YOUR_PROJECT_ID
 firebase deploy --only firestore:rules,firestore:indexes,storage
 ```
 
-For the full launch runbook, see [`docs/PRODUCTION_SETUP.md`](./docs/PRODUCTION_SETUP.md).
+For the complete production sequence and final handoff gate, see [`docs/PRODUCTION_SETUP.md`](./docs/PRODUCTION_SETUP.md).
 
 ### Create the Admin account
 
