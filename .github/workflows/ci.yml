@@ -13,20 +13,70 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
+
       - name: Install
         run: npm ci
+
       - name: Typecheck
-        run: npm run typecheck
+        shell: bash
+        run: |
+          set +e
+          npm run typecheck 2>&1 | tee validation.log
+          status=${PIPESTATUS[0]}
+          {
+            echo '## Typecheck'
+            echo '```text'
+            cat validation.log
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit $status
+
       - name: Lint
-        run: npm run lint
+        shell: bash
+        run: |
+          set +e
+          npm run lint 2>&1 | tee validation.log
+          status=${PIPESTATUS[0]}
+          {
+            echo '## Lint'
+            echo '```text'
+            cat validation.log
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit $status
+
       - name: Tests
-        run: npm test
+        shell: bash
+        run: |
+          set +e
+          npm test 2>&1 | tee validation.log
+          status=${PIPESTATUS[0]}
+          {
+            echo '## Tests'
+            echo '```text'
+            cat validation.log
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit $status
+
       - name: Production build
-        run: npm run build
+        shell: bash
         env:
           CI: true
+        run: |
+          set +e
+          npm run build 2>&1 | tee validation.log
+          status=${PIPESTATUS[0]}
+          {
+            echo '## Production build'
+            echo '```text'
+            cat validation.log
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit $status
