@@ -28,6 +28,7 @@ Arabic is the default experience. The mobile UI is intentionally app-like, while
 - `/api/bookings` — server-side booking creation
 - `/api/bookings/availability` — schedule-aware live availability
 - `/api/admin/bookings` — protected booking management API
+- `/api/health` — safe production configuration readiness check
 
 ## Run locally
 
@@ -59,6 +60,8 @@ firebase use YOUR_PROJECT_ID
 firebase deploy --only firestore:rules,firestore:indexes,storage
 ```
 
+For the full launch runbook, see [`docs/PRODUCTION_SETUP.md`](./docs/PRODUCTION_SETUP.md).
+
 ### Create the Admin account
 
 1. In Firebase Authentication, create the shop owner's Email/Password user.
@@ -78,7 +81,7 @@ with:
 }
 ```
 
-The Admin Dashboard checks Firebase Authentication and the matching `admins/{uid}` record before protected API actions are allowed.
+The Admin login verifies Firebase Authentication and the matching active Admin authorization before opening the dashboard. Protected APIs perform the same authorization check server-side.
 
 ## Environment variables
 
@@ -261,6 +264,7 @@ The production booking flow uses Firebase data, not hard-coded barber/service re
 
 Before creating a booking the server validates:
 
+- booking date is inside the current 14-day `Asia/Amman` booking window
 - active service
 - active barber
 - weekly barber schedule
@@ -321,24 +325,25 @@ npm test
 npm run build
 ```
 
-GitHub Actions runs the same validation on the feature branch and pull requests.
+GitHub Actions also performs a production dependency audit and runs the same validation on the feature branch and pull requests.
 
 ## Deploy to Netlify
 
 1. Connect this GitHub repository to Netlify.
 2. Select the production branch after the client-ready PR is merged.
-3. Netlify reads `netlify.toml` and builds using Node 22.
+3. Netlify reads `netlify.toml` and builds using Node `24.12.0` or newer.
 4. Add every required `.env.local` variable under **Site configuration → Environment variables**.
 5. Deploy the site.
-6. Add the final Netlify/custom domain to **Firebase Authentication → Authorized domains**.
-7. Verify `/admin/login`.
-8. Seed Services and Barbers from Admin if Firestore is empty.
-9. Add the real three barber identities/photos.
-10. Add real MB Instagram Reel URLs and covers.
-11. Add the two Hero MP4 files.
-12. Test a complete production booking.
-13. Enable push notifications on the owner's device.
-14. Install the final HTTPS site as a PWA and verify offline behavior.
+6. Open `/api/health` and confirm `ready: true` before testing Admin or bookings.
+7. Add the final Netlify/custom domain to **Firebase Authentication → Authorized domains**.
+8. Verify `/admin/login`.
+9. Seed Services and Barbers from Admin if Firestore is empty.
+10. Add the real three barber identities/photos.
+11. Add real MB Instagram Reel URLs and covers.
+12. Add the two Hero MP4 files.
+13. Test a complete production booking.
+14. Enable push notifications on the owner's device.
+15. Install the final HTTPS site as a PWA and verify offline behavior.
 
 ## Content still requiring real MB input
 
