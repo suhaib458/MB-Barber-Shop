@@ -1,16 +1,26 @@
+import Image from "next/image";
+
 export function Logo({ compact = false }: { compact?: boolean }) {
+  const sizeClass = compact ? "h-10 w-10" : "h-12 w-12";
+
   return (
-    <span className="inline-flex items-center gap-3" aria-label="MB">
+    <span
+      className="inline-flex items-center"
+      aria-label="MB"
+      title="MB"
+    >
       <span
-        className={`${compact ? "h-9 w-9 text-xs" : "h-11 w-11 text-sm"} grid place-items-center rounded-full border border-[#c6a15b]/65 font-serif font-bold tracking-[-.08em] text-[#ead49a]`}
+        className={`${sizeClass} relative block shrink-0 overflow-hidden rounded-full bg-black ring-1 ring-white/15 shadow-[0_0_28px_rgba(255,255,255,0.08)] transition duration-300 hover:ring-[#d7b66f]/45`}
       >
-        MB
+        <Image
+          src="/images/mb-logo.jpg"
+          alt="MB"
+          fill
+          priority
+          sizes={compact ? "40px" : "48px"}
+          className="object-cover"
+        />
       </span>
-      {!compact && (
-        <span className="hidden text-[10px] font-semibold uppercase tracking-[.3em] text-white/45 sm:block">
-          Premium Grooming
-        </span>
-      )}
     </span>
   );
 }
