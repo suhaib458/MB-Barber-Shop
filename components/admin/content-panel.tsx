@@ -19,7 +19,7 @@ import {
   ArrowUp,
   ExternalLink,
   ImagePlus,
-  Instagram,
+  Aperture as Instagram,
   LoaderCircle,
   MessageSquareQuote,
   Pencil,

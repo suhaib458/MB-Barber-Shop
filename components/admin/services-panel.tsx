@@ -97,11 +97,12 @@ export function ServicesPanel() {
   }
 
   async function seedDefaults() {
-    if (!db || items.length || !window.confirm("Add the six default MB services to Firebase?")) return;
-    const batch = writeBatch(db);
+    const firestore = db;
+    if (!firestore || items.length || !window.confirm("Add the six default MB services to Firebase?")) return;
+    const batch = writeBatch(firestore);
     defaultServices.forEach((item) => {
       const { id, ...payload } = item;
-      batch.set(doc(db, "services", id), payload);
+      batch.set(doc(firestore, "services", id), payload);
     });
     await batch.commit();
   }

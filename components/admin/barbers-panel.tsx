@@ -154,11 +154,12 @@ export function BarbersPanel() {
   }
 
   async function seedDefaults() {
-    if (!db || items.length || !window.confirm("Add the three placeholder MB barber records?")) return;
-    const batch = writeBatch(db);
+    const firestore = db;
+    if (!firestore || items.length || !window.confirm("Add the three placeholder MB barber records?")) return;
+    const batch = writeBatch(firestore);
     defaultBarbers.forEach((item) => {
       const { id, ...payload } = item;
-      batch.set(doc(db, "barbers", id), payload);
+      batch.set(doc(firestore, "barbers", id), payload);
     });
     await batch.commit();
   }

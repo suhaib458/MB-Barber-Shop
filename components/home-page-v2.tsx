@@ -12,7 +12,7 @@ import {
   ExternalLink,
   Grid3X3,
   House,
-  Instagram,
+  Aperture as Instagram,
   MapPin,
   Menu,
   MessageCircle,
