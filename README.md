@@ -331,7 +331,7 @@ GitHub Actions also performs a production dependency audit and runs the same val
 
 1. Connect this GitHub repository to Netlify.
 2. Select the production branch after the client-ready PR is merged.
-3. Netlify reads `netlify.toml` and builds using Node `24.12.0` or newer.
+3. Netlify reads `netlify.toml` and builds using Node `24.15.0` or newer.
 4. Add every required `.env.local` variable under **Site configuration → Environment variables**.
 5. Deploy the site.
 6. Open `/api/health` and confirm `ready: true` before testing Admin or bookings.
