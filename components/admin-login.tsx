@@ -1,5 +1,5 @@
 "use client";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { ArrowLeft, LoaderCircle, LockKeyhole } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -18,8 +18,22 @@ export function AdminLogin() {
     setLoading(true);
     setError("");
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.push("/admin");
+      const credential = await signInWithEmailAndPassword(auth, email, password);
+      const token = await credential.user.getIdToken();
+      const response = await fetch("/api/admin/session", {
+        headers: { authorization: `Bearer ${token}` },
+        cache: "no-store",
+      });
+      if (!response.ok) {
+        await signOut(auth);
+        setError(
+          response.status === 403
+            ? "This Firebase account is not authorized as an active MB admin."
+            : "Unable to verify the Admin session.",
+        );
+        return;
+      }
+      router.replace("/admin");
     } catch {
       setError("Unable to sign in. Check your admin credentials.");
     } finally {

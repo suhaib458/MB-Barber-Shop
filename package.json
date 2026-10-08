@@ -2,6 +2,9 @@
   "name": "mb-app",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=24.15.0"
+  },
   "overrides": {
     "@grpc/grpc-js": "^1.14.6"
   },

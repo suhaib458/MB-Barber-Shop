@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   formatTime,
   generateReference,
+  getAvailableDates,
   getTimeSlots,
+  isBookableDate,
   isOpenInAmman,
   normalizeJordanPhone,
 } from "@/lib/booking";
@@ -23,6 +25,16 @@ describe("booking business rules", () => {
     expect(generateReference(new Date("2026-02-01"), () => 0)).toBe(
       "MB-2026-0000",
     ));
+  it("uses Amman date for the 14-day booking window", () => {
+    const now = new Date("2026-10-08T22:30:00Z");
+    const dates = getAvailableDates(14, now);
+    expect(dates[0]).toBe("2026-10-09");
+    expect(dates.at(-1)).toBe("2026-10-22");
+    expect(isBookableDate("2026-10-09", 14, now)).toBe(true);
+    expect(isBookableDate("2026-10-22", 14, now)).toBe(true);
+    expect(isBookableDate("2026-10-08", 14, now)).toBe(false);
+    expect(isBookableDate("2026-10-23", 14, now)).toBe(false);
+  });
   it("calculates business hours in Asia/Amman", () => {
     expect(isOpenInAmman(new Date("2026-01-01T09:00:00Z"))).toBe(true);
     expect(isOpenInAmman(new Date("2026-01-01T22:00:00Z"))).toBe(false);

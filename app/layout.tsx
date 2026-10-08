@@ -14,7 +14,13 @@ export const metadata: Metadata = {
     title: "MB",
   },
   formatDetection: { telephone: false },
-  icons: { icon: "/icons/icon.svg", apple: "/icons/icon.svg" },
+  icons: {
+    icon: [
+      { url: "/images/mb-logo.jpg", type: "image/jpeg" },
+      { url: "/icons/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: "/images/mb-logo.jpg",
+  },
   openGraph: {
     title: "MB — Premium Grooming",
     description: "Your style starts at MB.",
