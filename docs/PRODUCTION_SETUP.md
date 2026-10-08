@@ -12,12 +12,13 @@ mb-barber-shop-718cb
 
 The repository is bound to that project through `.firebaserc`.
 
+The Firebase Web App has also already been created. Its browser configuration has been collected; keep those values in local/Netlify environment variables rather than committing an `.env.local` file.
+
 In Firebase Console, complete these items:
 
-1. Add/keep the **MB Web** application.
-2. Enable **Authentication → Sign-in method → Email/Password**.
-3. Create **Cloud Firestore** in production mode.
-4. Open **Project settings → Cloud Messaging → Web Push certificates** and create a VAPID key.
+1. Enable **Authentication → Sign-in method → Email/Password**.
+2. Create **Cloud Firestore** in production mode.
+3. Open **Project settings → Cloud Messaging → Web Push certificates** and create a VAPID key.
 
 Firebase Storage is intentionally not used by this project. Admin image uploads use an external media provider so the Firebase project can stay on Spark without requiring Cloud Storage billing.
 
@@ -210,7 +211,7 @@ Before merging to `main`, verify all of the following on staging:
 Do not merge the feature branch into `main` until all of these external values are present and verified:
 
 ```text
-Firebase Web App configuration
+Firebase Web App environment values
 Firebase Admin service-account values
 VAPID key
 Cloudinary cloud name / API key / API secret
