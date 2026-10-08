@@ -5,6 +5,7 @@ import { barbers as demoBarbers, services as demoServices } from "@/data/demo";
 import {
   generateReference,
   getTimeSlots,
+  isBookableDate,
   normalizeJordanPhone,
   weekdayKeyForDate,
 } from "@/lib/booking";
@@ -90,6 +91,10 @@ export async function POST(request: Request) {
     }
 
     const input = parsed.data;
+    if (!isBookableDate(input.bookingDate)) {
+      return NextResponse.json({ error: "INVALID_DATE" }, { status: 400 });
+    }
+
     const phone = normalizeJordanPhone(input.phone);
     if (!phone) {
       return NextResponse.json({ error: "INVALID" }, { status: 400 });
