@@ -1,1 +1,39 @@
-{"name":"MB","short_name":"MB","description":"Premium grooming and booking","start_url":"/ar","display":"standalone","background_color":"#080808","theme_color":"#080808","orientation":"any","lang":"ar","dir":"rtl","icons":[{"src":"/icons/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]}
+{
+  "name": "MB",
+  "short_name": "MB",
+  "description": "Premium bilingual booking experience for MB.",
+  "start_url": "/ar",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#080808",
+  "theme_color": "#080808",
+  "orientation": "any",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "/images/mb-logo.jpg",
+      "sizes": "150x150",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "احجز موعدك",
+      "short_name": "احجز",
+      "url": "/ar#booking"
+    },
+    {
+      "name": "Book appointment",
+      "short_name": "Book",
+      "url": "/en#booking"
+    }
+  ]
+}
