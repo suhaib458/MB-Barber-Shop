@@ -345,6 +345,19 @@ GitHub Actions also performs a production dependency audit and runs the same val
 14. Enable push notifications on the owner's device.
 15. Install the final HTTPS site as a PWA and verify offline behavior.
 
+## Launch blockers
+
+The codebase is ready for external production configuration. Do **not** merge/deploy as final production until these are supplied and tested:
+
+- Firebase Web App values
+- Firebase Admin service-account values
+- VAPID key
+- authorized staging/production domain
+- active Admin user + `admins/{uid}` role document
+- real three barber identities/photos
+- final Hero desktop/mobile MP4 files
+- real Reel URLs/covers intended for launch
+
 ## Content still requiring real MB input
 
 The application code is prepared for these, but the final client presentation improves when real shop content is supplied:
