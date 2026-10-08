@@ -1,15 +1,33 @@
 # MB — Premium Barber PWA
 
-A production-oriented bilingual (Arabic/English) booking website and admin console for MB. The public experience is Arabic-first, responsive, installable as a PWA, and uses a server endpoint for every booking. With Firebase configured, slot reservation is protected by a Firestore transaction and per-barber slot lock.
+A client-ready bilingual Arabic/English PWA for **MB**, with a cinematic public website, real appointment booking logic, Firebase-backed content management, protected Admin Dashboard, push notifications and Netlify deployment support.
+
+Arabic is the default experience. The mobile UI is intentionally app-like, while desktop uses a premium cinematic layout.
 
 ## Stack
 
-- Next.js 16 App Router, React 19, strict TypeScript
-- Tailwind CSS 4 and Motion
-- Firebase Authentication, Firestore, Storage-ready rules, Cloud Messaging
-- PWA manifest, service worker, offline screen
+- Next.js 16 App Router + React 19
+- TypeScript strict mode
+- Tailwind CSS 4
+- Motion animations
+- Firebase Authentication
+- Cloud Firestore
+- Firebase Storage
+- Firebase Cloud Messaging
+- PWA manifest + service worker + offline page
 - Vitest business-logic tests
 - Netlify Next.js runtime
+- GitHub Actions validation
+
+## Main routes
+
+- `/ar` — Arabic RTL website
+- `/en` — English LTR website
+- `/admin/login` — Admin sign-in
+- `/admin` — protected MB management dashboard
+- `/api/bookings` — server-side booking creation
+- `/api/bookings/availability` — schedule-aware live availability
+- `/api/admin/bookings` — protected booking management API
 
 ## Run locally
 
@@ -19,18 +37,20 @@ copy .env.example .env.local
 npm run dev
 ```
 
-Open `http://localhost:3000`. Arabic is at `/ar`, English at `/en`, and Admin at `/admin/login`.
+Open `http://localhost:3000`.
 
-Without Firebase variables the public site runs in demo mode. Booking requests still pass through the server route and collisions are prevented for the lifetime of the local server process, but data is not persistent. Production mode is enabled automatically when server Firebase credentials are present.
+If Firebase is not configured, the public website can still render in demo mode and the booking API uses an in-memory demo collision store. Production persistence, Admin CMS, Firebase Storage and push notifications require Firebase configuration.
 
 ## Firebase setup
 
-1. Create a Firebase project and Web App.
-2. Enable **Authentication → Email/Password**.
-3. Create Firestore in production mode and a Storage bucket.
-4. Create a Web Push certificate in **Project Settings → Cloud Messaging**.
-5. Copy `.env.example` to `.env.local` and fill in the web and Admin SDK values.
-6. Deploy rules and indexes with the Firebase CLI:
+1. Create a Firebase project.
+2. Add a **Web App** to that project.
+3. Enable **Authentication → Email/Password**.
+4. Create **Cloud Firestore** in production mode.
+5. Enable **Firebase Storage**.
+6. In **Project Settings → Cloud Messaging**, create a Web Push certificate / VAPID key.
+7. Copy `.env.example` to `.env.local` and fill the values.
+8. Deploy rules and indexes:
 
 ```bash
 npm install -g firebase-tools
@@ -39,41 +59,260 @@ firebase use YOUR_PROJECT_ID
 firebase deploy --only firestore:rules,firestore:indexes,storage
 ```
 
-7. Create an admin user in Firebase Authentication. In Firestore, create `admins/{AUTH_UID}` with `{ "active": true, "role": "admin" }`. This allows that account to use the protected dashboard and API.
+### Create the Admin account
 
-Do not expose `FIREBASE_CLIENT_EMAIL` or `FIREBASE_PRIVATE_KEY` to the browser. They must remain server-only Netlify environment variables.
+1. In Firebase Authentication, create the shop owner's Email/Password user.
+2. Copy the user's Firebase Auth UID.
+3. In Firestore create:
+
+```text
+admins/{AUTH_UID}
+```
+
+with:
+
+```json
+{
+  "active": true,
+  "role": "admin"
+}
+```
+
+The Admin Dashboard checks Firebase Authentication and the matching `admins/{uid}` record before protected API actions are allowed.
 
 ## Environment variables
 
-All required names are documented in [.env.example](./.env.example). `NEXT_PUBLIC_*` values configure the Firebase web SDK. `FIREBASE_*` values configure the server SDK used for transactions, admin authorization, and push delivery.
+All required names are in [`.env.example`](./.env.example).
 
-## Media and brand assets
+Browser Firebase SDK values:
 
-- Official logo: replace the fallback and update the `Logo` component to use `public/images/mb-logo.png`. The supplied request did not include the actual logo file, so the current monogram is intentionally a neutral fallback rather than a redesign.
-- Desktop hero video: `public/videos/mb-hero-desktop.mp4` (16:9 recommended).
-- Mobile hero video: `public/videos/mb-hero-mobile.mp4` (9:16 recommended).
-- Hero poster: `public/images/hero-poster.svg`.
+```text
+NEXT_PUBLIC_FIREBASE_API_KEY
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+NEXT_PUBLIC_FIREBASE_PROJECT_ID
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+NEXT_PUBLIC_FIREBASE_APP_ID
+NEXT_PUBLIC_FIREBASE_VAPID_KEY
+```
 
-Missing videos never block rendering; the poster remains visible beneath them.
+Server-only Firebase Admin values:
 
-## Content management
+```text
+FIREBASE_PROJECT_ID
+FIREBASE_CLIENT_EMAIL
+FIREBASE_PRIVATE_KEY
+```
 
-- **Barbers:** sign in at `/admin/login`, open Barbers, and add Arabic/English names. Full records support specialties, schedules, unavailable dates, blocked slots, status and sort order.
-- **Services:** use the Services panel. Pricing and duration are intentionally absent from the public UI.
-- **Instagram work:** records belong in `instagramWorks` with `reelUrl`, optional `coverImage`, bilingual titles, `order`, and `active`. The public demo uses replaceable covers and links to the real MB Instagram profile.
-- **Business details:** use `businessSettings/main` for phone, WhatsApp, Instagram, map URL, weekly hours, special hours and closures.
+Never expose `FIREBASE_CLIENT_EMAIL` or `FIREBASE_PRIVATE_KEY` through `NEXT_PUBLIC_*` variables.
 
-The default demo content lives in `data/demo.ts` and the bilingual dictionaries in `i18n/dictionaries.ts`.
+## Official MB brand assets
+
+The official supplied logo is already integrated at:
+
+```text
+public/images/mb-logo.jpg
+```
+
+Hero media paths are prepared as:
+
+```text
+public/videos/mb-hero-desktop.mp4   # 16:9
+public/videos/mb-hero-mobile.mp4    # 9:16
+```
+
+Fallback poster:
+
+```text
+public/images/hero-poster.svg
+```
+
+The public Hero keeps rendering if either video is missing.
+
+## Public website
+
+The public experience includes:
+
+- Arabic RTL / English LTR language switch
+- cinematic responsive Hero
+- desktop glass Navbar
+- iOS-inspired floating mobile navigation
+- live Services
+- live Barbers
+- “Any Available Barber” booking option
+- Instagram Reel cards
+- optional Gallery with lightbox
+- optional Reviews — hidden when there are no genuine active reviews
+- editable About content
+- live weekly opening hours
+- `Asia/Amman` open/closed status
+- Google Maps integration
+- phone and WhatsApp actions
+- FAQ
+- PWA installability and offline fallback
+
+## Admin Dashboard
+
+Sign in at `/admin/login`.
+
+### Overview & bookings
+
+Admin can:
+
+- see booking counts
+- review pending bookings
+- search by customer, phone or reference number
+- filter by date and status
+- confirm or reject bookings
+- mark confirmed bookings completed
+- cancel confirmed bookings
+- call customers directly
+- open WhatsApp directly
+- enable supported browser/PWA push notifications
+
+Rejected and cancelled bookings release their slot lock.
+
+### Services
+
+Admin can:
+
+- add services
+- edit Arabic/English names
+- enable/disable services
+- delete services
+- reorder services
+- seed the six initial MB service records
+
+Public pricing and duration are intentionally not displayed.
+
+### Barbers
+
+Admin can:
+
+- add/edit/delete barbers
+- upload barber images
+- edit Arabic and English names
+- edit bilingual specialties
+- enable/disable a barber
+- reorder barbers
+- configure weekly working hours per barber
+- mark full unavailable dates
+- block recurring time slots
+- seed three replaceable placeholder barber records
+
+### Instagram Reels / Our Work
+
+The website does **not** depend on the Instagram/Meta API.
+
+Admin manually manages Reel cards with:
+
+- original Instagram Reel URL
+- uploaded cover image
+- optional Arabic/English title
+- active/hidden status
+- custom ordering
+
+On desktop, the public website shows a vertical multi-card Reel grid. On mobile, the cards are horizontally swipeable. Clicking a card opens the original Reel on Instagram.
+
+MB profile:
+
+```text
+https://www.instagram.com/mb_barber98
+```
+
+### Gallery
+
+Admin can upload and manage real MB photography through Firebase Storage. The public Gallery is automatically hidden when empty.
+
+### Reviews
+
+Only genuine customer feedback should be entered. Admin can add, edit, hide, reorder and delete reviews. The public Reviews section does not appear when there are no active reviews.
+
+### Business settings
+
+Admin can edit:
+
+- display phone
+- canonical phone
+- WhatsApp number
+- Instagram URL
+- Google Maps URL
+- Arabic About text
+- English About text
+- weekly shop opening hours
+- temporary closure status
+- exceptional closure dates
+- exceptional custom opening hours
+
+Default known business details:
+
+```text
+Phone: 0792398952
+Canonical: +962792398952
+Instagram: https://www.instagram.com/mb_barber98
+Maps: https://maps.app.goo.gl/5yAES5LsfcCgchQx9
+Default hours: 11:00–23:00 every day
+Timezone: Asia/Amman
+```
 
 ## Booking integrity
 
-Production requests are created only by the server endpoint. A Firestore transaction checks `slotLocks/{date}_{barber}_{time}` and creates the lock and booking atomically. “Any available barber” checks each active barber inside the same transaction. Rejected or cancelled bookings release their lock. Public users cannot read or write booking records directly under the supplied rules.
+The production booking flow uses Firebase data, not hard-coded barber/service records.
+
+Before creating a booking the server validates:
+
+- active service
+- active barber
+- weekly barber schedule
+- weekly shop schedule
+- exceptional shop closures/hours
+- barber unavailable dates
+- barber blocked time slots
+- existing slot locks
+
+Final reservation is protected using a Firestore transaction and a slot lock:
+
+```text
+slotLocks/{date}_{barber}_{time}
+```
+
+For **Any Available Barber**, the transaction selects an available active barber. The final transactional check prevents two customers from taking the same barber/time even if they submit simultaneously.
+
+## Customer profile
+
+Customers do not create a traditional account.
+
+On first booking the site requests:
+
+- name
+- Jordanian phone number
+
+The profile is remembered locally on that device to prefill later bookings. The phone is normalized to the Jordan canonical format. This is **not** represented as OTP-verified authentication.
 
 ## Push notifications
 
-An authenticated admin can enable notifications from the bell button. Tokens are stored per device in `notificationTokens`. Successful Firebase bookings send an FCM notification; invalid tokens are cleaned up. Unsupported or denied browsers fail gracefully and the dashboard remains the in-app notification fallback. On iOS, web push requires an installed PWA and a supported iOS version.
+An authenticated Admin can request push permission from the Dashboard.
+
+FCM tokens are stored in `notificationTokens`. When a production booking succeeds, Admin devices can receive a new-booking notification. Invalid tokens are cleaned up automatically.
+
+For iPhone/iPad, Web Push depends on supported iOS versions and the website being installed as a PWA. Unsupported/denied browsers fall back gracefully to the Admin Dashboard pending-booking badge.
+
+## PWA / offline behavior
+
+The project includes:
+
+- Web App Manifest
+- service worker
+- standalone mode
+- iOS viewport/safe-area support
+- offline fallback page
+- cached public shell
+
+Bookings are **not** falsely queued or marked successful while offline. The booking screen tells the customer to reconnect before submitting.
 
 ## Validation
+
+Local commands:
 
 ```bash
 npm run typecheck
@@ -82,12 +321,36 @@ npm test
 npm run build
 ```
 
+GitHub Actions runs the same validation on the feature branch and pull requests.
+
 ## Deploy to Netlify
 
-1. Push this folder to a Git provider and create a new Netlify site from it.
-2. Netlify reads `netlify.toml` and runs `npm run build` with Node 22.
-3. Add every `.env.local` value in **Site configuration → Environment variables**.
-4. Deploy, then add the Netlify domain to Firebase Authentication’s authorized domains.
-5. Test sign-in, create a booking, enable admin push, and install the PWA once on the final HTTPS domain.
+1. Connect this GitHub repository to Netlify.
+2. Select the production branch after the client-ready PR is merged.
+3. Netlify reads `netlify.toml` and builds using Node 22.
+4. Add every required `.env.local` variable under **Site configuration → Environment variables**.
+5. Deploy the site.
+6. Add the final Netlify/custom domain to **Firebase Authentication → Authorized domains**.
+7. Verify `/admin/login`.
+8. Seed Services and Barbers from Admin if Firestore is empty.
+9. Add the real three barber identities/photos.
+10. Add real MB Instagram Reel URLs and covers.
+11. Add the two Hero MP4 files.
+12. Test a complete production booking.
+13. Enable push notifications on the owner's device.
+14. Install the final HTTPS site as a PWA and verify offline behavior.
 
-The service worker is served with a revalidation header and the PWA offline page never queues or pretends to complete booking submissions while offline.
+## Content still requiring real MB input
+
+The application code is prepared for these, but the final client presentation improves when real shop content is supplied:
+
+- desktop Hero video (`16:9`)
+- mobile Hero video (`9:16`)
+- real barber names
+- real barber photos
+- barber specialties if desired
+- real Instagram Reel links and cover images
+- optional Gallery photography
+- genuine customer reviews
+
+No fake customer testimonials are required or shown.
