@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { isAdminConfigured } from "@/lib/firebase/admin";
 
-export const dynamic = "force-dynamic";
-
 export async function GET() {
   const publicFirebaseConfigured = Boolean(
     process.env.NEXT_PUBLIC_FIREBASE_API_KEY &&
