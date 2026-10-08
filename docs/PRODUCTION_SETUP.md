@@ -176,4 +176,19 @@ Before merging to `main`, verify all of the following on the staging deployment:
 - Push notification permission and FCM registration work on a supported device.
 - Offline submission never reports a false successful booking.
 
-Only after this smoke test should the feature PR be merged into `main` and used as the production branch.
+## 11. Final handoff gate
+
+Do not merge the feature branch into `main` until all of these external values are present and verified:
+
+```text
+Firebase Web App configuration
+Firebase Admin service-account values
+VAPID key
+Authorized production/staging domain
+One active Admin user + admins/{uid} role document
+Real three barber identities/photos
+Final Hero desktop/mobile MP4 files
+Real Reel URLs/covers intended for launch
+```
+
+Once those are supplied, the remaining launch sequence is: deploy staging → verify `/api/health` → complete the smoke test → merge PR → deploy `main` to production.
