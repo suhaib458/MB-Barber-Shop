@@ -53,7 +53,13 @@ function scheduleFor(
     return { start: special.start, end: special.end };
   }
   const day = weekdayKeyForDate(date);
-  return barber.workSchedule?.[day] ?? settings?.weeklyHours?.[day] ?? defaultHours[day];
+  if (barber.workSchedule && Object.prototype.hasOwnProperty.call(barber.workSchedule, day)) {
+    return barber.workSchedule[day];
+  }
+  if (settings?.weeklyHours && Object.prototype.hasOwnProperty.call(settings.weeklyHours, day)) {
+    return settings.weeklyHours[day];
+  }
+  return defaultHours[day];
 }
 
 function canBookBarber(
