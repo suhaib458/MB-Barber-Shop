@@ -54,7 +54,7 @@ export function BookingFlowLive({ locale }: { locale: Locale }) {
     barberNameSnapshot: string;
     demoMode: boolean;
   } | null>(null);
-  const [dates, setDates] = useState<string[]>([]);
+  const dates = useMemo(() => getAvailableDates(), []);
 
   const activeServices = useMemo(
     () => services.filter((item) => item.active),
@@ -68,24 +68,27 @@ export function BookingFlowLive({ locale }: { locale: Locale }) {
   const barber = activeBarbers.find((item) => item.id === form.barberId);
 
   useEffect(() => {
-    setDates(getAvailableDates());
-    try {
-      const profile = JSON.parse(localStorage.getItem("mb-customer") || "null");
-      if (profile?.name && profile?.phone) {
+  let timer: number | undefined;
+  try {
+    const profile = JSON.parse(localStorage.getItem("mb-customer") || "null");
+    if (profile?.name && profile?.phone) {
+      timer = window.setTimeout(() => {
         setForm((current) => ({
           ...current,
           customerName: profile.name,
           phone: profile.phone,
         }));
-      }
-    } catch {}
-  }, []);
+      }, 0);
+    }
+  } catch {}
+  return () => {
+    if (timer) window.clearTimeout(timer);
+  };
+}, []);
 
   useEffect(() => {
     if (step !== 3 || !form.bookingDate || !form.barberId) return;
     const controller = new AbortController();
-    setLoadingSlots(true);
-    setError("");
     fetch(
       `/api/bookings/availability?date=${encodeURIComponent(form.bookingDate)}&barberId=${encodeURIComponent(form.barberId)}`,
       { signal: controller.signal },

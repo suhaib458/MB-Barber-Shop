@@ -21,8 +21,6 @@ import {
   Scissors,
   Sparkles,
   Star,
-  UserRound,
-  UsersRound,
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";

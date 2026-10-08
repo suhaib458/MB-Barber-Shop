@@ -30,7 +30,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { db, storage } from "@/lib/firebase/client";
 import type { GalleryItem, InstagramWork, Review } from "@/types";
 

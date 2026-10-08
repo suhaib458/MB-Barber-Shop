@@ -22,7 +22,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { BarbersPanel } from "@/components/admin/barbers-panel";
 import { ContentPanel } from "@/components/admin/content-panel";
 import { ServicesPanel } from "@/components/admin/services-panel";
@@ -44,28 +44,15 @@ const labels: { id: Tab; label: string; icon: typeof LayoutDashboard }[] = [
 
 export function AdminDashboardV2() {
   const [user, setUser] = useState<User | null>(null);
-  const [checking, setChecking] = useState(true);
+  const [checking, setChecking] = useState(Boolean(auth));
   const [tab, setTab] = useState<Tab>("overview");
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
   const [notificationState, setNotificationState] = useState<"idle" | "enabled" | "denied" | "unsupported">("idle");
   const router = useRouter();
 
-  useEffect(() => {
-    if (!auth) {
-      router.replace("/admin/login");
-      setChecking(false);
-      return;
-    }
-    return onAuthStateChanged(auth, (current) => {
-      if (!current) router.replace("/admin/login");
-      else setUser(current);
-      setChecking(false);
-    });
-  }, [router]);
-
-  async function loadBookings(currentUser = user) {
-    if (!currentUser) return;
+  const loadBookings = useCallback(
+  async (currentUser: User) => {
     setLoadingBookings(true);
     try {
       const token = await currentUser.getIdToken();
@@ -83,11 +70,26 @@ export function AdminDashboardV2() {
     } finally {
       setLoadingBookings(false);
     }
-  }
+  },
+  [router],
+);
 
-  useEffect(() => {
-    if (user) void loadBookings(user);
-  }, [user]);
+useEffect(() => {
+  if (!auth) {
+    router.replace("/admin/login");
+    return;
+  }
+  return onAuthStateChanged(auth, (current) => {
+    if (!current) {
+      router.replace("/admin/login");
+      setChecking(false);
+      return;
+    }
+    setUser(current);
+    setChecking(false);
+    void loadBookings(current);
+  });
+}, [loadBookings, router]);
 
   const counts = useMemo(
     () => ({
@@ -208,7 +210,7 @@ export function AdminDashboardV2() {
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => void loadBookings()}
+              onClick={() => user && void loadBookings(user)}
               className="admin-icon"
               aria-label="Refresh bookings"
               title="Refresh bookings"
