@@ -1,6 +1,6 @@
 "use client";
 
-import { doc, onSnapshot, orderBy, query, collection, where } from "firebase/firestore";
+import { collection, doc, onSnapshot, orderBy, query, where } from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
 import {
   CONTACT,
@@ -38,9 +38,11 @@ export const defaultBusinessSettings: BusinessSettings = {
 };
 
 export function useMbContent() {
-  const [services, setServices] = useState<Service[]>(demoServices);
-  const [barbers, setBarbers] = useState<Barber[]>(demoBarbers);
-  const [instagramWorks, setInstagramWorks] = useState<InstagramWork[]>(demoInstagramWorks);
+  const [services, setServices] = useState<Service[]>(db ? [] : demoServices);
+  const [barbers, setBarbers] = useState<Barber[]>(db ? [] : demoBarbers);
+  const [instagramWorks, setInstagramWorks] = useState<InstagramWork[]>(
+    db ? [] : demoInstagramWorks,
+  );
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [settings, setSettings] = useState<BusinessSettings>(defaultBusinessSettings);
@@ -63,9 +65,9 @@ export function useMbContent() {
           orderBy("sortOrder", "asc"),
         ),
         (snap) => {
-          if (!snap.empty) {
-            setServices(snap.docs.map((item) => ({ id: item.id, ...item.data() }) as Service));
-          }
+          setServices(
+            snap.docs.map((item) => ({ id: item.id, ...item.data() }) as Service),
+          );
           done();
         },
         done,
@@ -77,9 +79,9 @@ export function useMbContent() {
           orderBy("sortOrder", "asc"),
         ),
         (snap) => {
-          if (!snap.empty) {
-            setBarbers(snap.docs.map((item) => ({ id: item.id, ...item.data() }) as Barber));
-          }
+          setBarbers(
+            snap.docs.map((item) => ({ id: item.id, ...item.data() }) as Barber),
+          );
           done();
         },
         done,
@@ -91,11 +93,11 @@ export function useMbContent() {
           orderBy("order", "asc"),
         ),
         (snap) => {
-          if (!snap.empty) {
-            setInstagramWorks(
-              snap.docs.map((item) => ({ id: item.id, ...item.data() }) as InstagramWork),
-            );
-          }
+          setInstagramWorks(
+            snap.docs.map(
+              (item) => ({ id: item.id, ...item.data() }) as InstagramWork,
+            ),
+          );
           done();
         },
         done,
@@ -108,7 +110,9 @@ export function useMbContent() {
         ),
         (snap) => {
           setGallery(
-            snap.docs.map((item) => ({ id: item.id, ...item.data() }) as GalleryItem),
+            snap.docs.map(
+              (item) => ({ id: item.id, ...item.data() }) as GalleryItem,
+            ),
           );
           done();
         },
@@ -121,7 +125,9 @@ export function useMbContent() {
           orderBy("order", "asc"),
         ),
         (snap) => {
-          setReviews(snap.docs.map((item) => ({ id: item.id, ...item.data() }) as Review));
+          setReviews(
+            snap.docs.map((item) => ({ id: item.id, ...item.data() }) as Review),
+          );
           done();
         },
         done,
@@ -129,9 +135,11 @@ export function useMbContent() {
       onSnapshot(
         doc(db, "businessSettings", "main"),
         (snap) => {
-          if (snap.exists()) {
-            setSettings({ ...defaultBusinessSettings, ...snap.data() } as BusinessSettings);
-          }
+          setSettings(
+            snap.exists()
+              ? ({ ...defaultBusinessSettings, ...snap.data() } as BusinessSettings)
+              : defaultBusinessSettings,
+          );
           done();
         },
         done,
