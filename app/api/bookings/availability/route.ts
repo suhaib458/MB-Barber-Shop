@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { barbers as demoBarbers } from "@/data/demo";
-import { getTimeSlots, weekdayKeyForDate } from "@/lib/booking";
+import { getTimeSlots, isBookableDate, weekdayKeyForDate } from "@/lib/booking";
 import { adminDb, isAdminConfigured } from "@/lib/firebase/admin";
 import type { Barber, BusinessSettings, WorkingHours } from "@/types";
 
@@ -56,8 +56,8 @@ export async function GET(request: Request) {
   const date = params.get("date");
   const barberId = params.get("barberId") ?? "any";
 
-  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-    return NextResponse.json({ error: "INVALID" }, { status: 400 });
+  if (!date || !isBookableDate(date)) {
+    return NextResponse.json({ error: "INVALID_DATE", slots: [] }, { status: 400 });
   }
 
   if (!isAdminConfigured) {
