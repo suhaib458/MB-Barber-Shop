@@ -43,7 +43,7 @@ FIREBASE_PRIVATE_KEY
 
 For `FIREBASE_PRIVATE_KEY`, keep the full PEM value. Netlify can store the multiline value directly. The application also accepts escaped `\n` line breaks.
 
-Never commit the service-account JSON or private key to GitHub.
+Never commit the service-account JSON or private key to GitHub, and do not paste the private key into public issues, pull requests or chat messages. Enter it directly in the deployment provider's secret/environment UI.
 
 ## 4. Deploy Firestore / Storage rules and indexes
 
