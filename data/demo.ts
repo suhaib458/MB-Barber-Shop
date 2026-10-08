@@ -1,4 +1,5 @@
 import type { Barber, InstagramWork, Service } from "@/types";
+
 export const services: Service[] = [
   {
     id: "haircut",
@@ -49,12 +50,14 @@ export const services: Service[] = [
     sortOrder: 6,
   },
 ];
+
 const schedule = Object.fromEntries(
   Array.from({ length: 7 }, (_, i) => [
     String(i),
     { start: "11:00", end: "23:00" },
   ]),
 );
+
 export const barbers: Barber[] = [1, 2, 3].map((n) => ({
   id: `barber-0${n}`,
   nameAr: `الحلاق 0${n}`,
@@ -67,14 +70,11 @@ export const barbers: Barber[] = [1, 2, 3].map((n) => ({
   unavailableDates: [],
   unavailableTimeSlots: [],
 }));
-export const instagramWorks: InstagramWork[] = [1, 2, 3, 4].map((n) => ({
-  id: `work-${n}`,
-  reelUrl: "https://www.instagram.com/mb_barber98",
-  titleAr: `عمل مختار 0${n}`,
-  titleEn: `Selected work 0${n}`,
-  order: n,
-  active: true,
-}));
+
+// Intentionally empty until real MB Reel URLs + cover images are supplied.
+// This prevents demo cards from sending every click to the Instagram profile page.
+export const instagramWorks: InstagramWork[] = [];
+
 export const CONTACT = {
   displayPhone: "0792398952",
   phone: "+962792398952",
