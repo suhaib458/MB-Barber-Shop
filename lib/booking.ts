@@ -19,11 +19,40 @@ export function generateReference(
   return `MB-${now.getFullYear()}-${token}`;
 }
 
-export function getAvailableDates(count = 14): string[] {
+export function getAmmanDate(now = new Date()): string {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Amman",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(now);
+  const year = parts.find((item) => item.type === "year")?.value;
+  const month = parts.find((item) => item.type === "month")?.value;
+  const day = parts.find((item) => item.type === "day")?.value;
+  return `${year}-${month}-${day}`;
+}
+
+export function isBookableDate(
+  date: string,
+  count = 14,
+  now = new Date(),
+): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || count < 1) return false;
+  const today = getAmmanDate(now);
+  const selected = Date.parse(`${date}T00:00:00Z`);
+  const start = Date.parse(`${today}T00:00:00Z`);
+  if (!Number.isFinite(selected) || !Number.isFinite(start)) return false;
+  const offset = (selected - start) / 86_400_000;
+  return Number.isInteger(offset) && offset >= 0 && offset < count;
+}
+
+export function getAvailableDates(count = 14, now = new Date()): string[] {
+  const today = getAmmanDate(now);
+  const start = new Date(`${today}T00:00:00Z`);
   return Array.from({ length: count }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() + i);
-    return format(d, "yyyy-MM-dd");
+    const value = new Date(start);
+    value.setUTCDate(value.getUTCDate() + i);
+    return format(value, "yyyy-MM-dd");
   });
 }
 
