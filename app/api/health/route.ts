@@ -6,12 +6,21 @@ export async function GET() {
     process.env.NEXT_PUBLIC_FIREBASE_API_KEY &&
       process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN &&
       process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID &&
-      process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET &&
       process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID &&
       process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
   );
+  const vapidConfigured = Boolean(process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY);
+  const mediaConfigured = Boolean(
+    process.env.CLOUDINARY_CLOUD_NAME &&
+      process.env.CLOUDINARY_API_KEY &&
+      process.env.CLOUDINARY_API_SECRET,
+  );
 
-  const ready = publicFirebaseConfigured && isAdminConfigured;
+  const ready =
+    publicFirebaseConfigured &&
+    isAdminConfigured &&
+    vapidConfigured &&
+    mediaConfigured;
 
   return NextResponse.json(
     {
@@ -20,7 +29,8 @@ export async function GET() {
       checks: {
         publicFirebaseConfigured,
         adminFirebaseConfigured: isAdminConfigured,
-        vapidConfigured: Boolean(process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY),
+        vapidConfigured,
+        mediaConfigured,
       },
     },
     {
