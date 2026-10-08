@@ -89,7 +89,7 @@ The login flow now verifies this Admin authorization before opening the dashboar
 
 Connect the GitHub repository to Netlify and deploy the client-ready branch for staging first.
 
-Required build/runtime configuration is already defined in `netlify.toml` and `package.json`. The project requires Node `>=24.12.0`.
+Required build/runtime configuration is already defined in `netlify.toml` and `package.json`. The project requires Node `>=24.15.0`.
 
 Add all Firebase variables listed above under **Site configuration → Environment variables** and redeploy.
 
